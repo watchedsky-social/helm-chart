@@ -80,8 +80,9 @@ jobs:
                   - -ec
                   - |
                     oldVersion=$(yq '.version' chart-image/application/Chart.yaml)
-                    newVersion=$(yq '.version' chart-image/application/Chart.yaml)
+                    newVersion=$(yq '.version' chart-source/Chart.yaml)
 
+                    set -x
                     if ! semver-cli greater ${newVersion} ${oldVersion} ; then
                       echo "You must increase the version in Chart.yaml!" >&2
                       exit 1
