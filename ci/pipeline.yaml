@@ -149,8 +149,7 @@ jobs:
                 params:
                   repository: backend-source
                   tag: metadata/tag
-                  annotate: metadata/tag-message
-                  only_tag: true
+                  annotate: backend-source/latest-release
           - do:
               - task: tag-frontend
                 image: helm-task-image
@@ -165,5 +164,4 @@ jobs:
                 params:
                   repository: frontend-source
                   tag: metadata/tag
-                  annotate: metadata/tag-message
-                  only_tag: true
+                  annotate: frontend-source/latest-release

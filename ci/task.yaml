@@ -16,4 +16,8 @@ run:
     - -ec
     - |
       echo -n ${VERSION} > metadata/tag
-      echo "Publishing version ${VERSION} of the chart" > metadata/tag-message
+      echo "Publishing version ${VERSION} of the chart" > source/latest-release
+
+      cd source
+      git add -A
+      git commit -m 'Updated latest-release file'
