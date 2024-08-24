@@ -20,6 +20,10 @@ resources:
     source:
       uri: git@github.com:watchedsky-social/core.git
       private_key: ((core-deploy-private-key))
+      branch: main
+      git_config:
+        user.name: Concourse CI
+        user.email: ci@watchedsky.social
   - name: frontend-source
     type: git
     public: true
@@ -27,6 +31,10 @@ resources:
     source:
       uri: git@github.com:watchedsky-social/frontend.git
       private_key: ((frontend-deploy-private-key))
+      branch: main
+      git_config:
+        user.name: Concourse CI
+        user.email: ci@watchedsky.social
   - name: chart-image
     type: helm-charts
     public: true
