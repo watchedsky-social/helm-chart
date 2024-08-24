@@ -1,0 +1,65 @@
+resource_types:
+  - name: helm-charts
+    type: registry-image
+    source:
+      repository: registry.lab.verysmart.house/images/helm-charts-resource
+      tag: "1"
+
+resources:
+  - name: backend-image
+    type: registry-image
+    public: true
+    icon: docker
+    source:
+      repository: registry.lab.verysmart.house/watchedsky/core
+      tag: ((appVersion))
+  - name: frontend-image
+    type: registry-image
+    public: true
+    icon: docker
+    source:
+      repository: registry.lab.verysmart.house/watchedsky/frontend
+      tag: ((appVersion))
+  - name: chart-image
+    type: helm-charts
+    public: true
+    icon: kubernetes
+    source:
+      repo_url: oci://registry.lab.verysmart.house/watchedsky
+      chart: application
+  - name: helm-task-image
+    type: registry-image
+    public: true
+    icon: docker
+    check_every: 168h
+    source:
+      repository: registry.lab.verysmart.house/images/helm-tasks
+
+jobs:
+  - name: deploy
+    public: true
+    serial: true
+    plan:
+      - in_parallel:
+          - get: chart-image
+          - get: backend-image
+            params:
+              skip_download: true
+          - get: frontend-image
+            params:
+              skip_download: true
+          - get: helm-task-image
+            params:
+              format: rootfs
+      - task: deploy
+        image: helm-task-image
+        config:
+          platform: linux
+          inputs: [{name: chart-image}]
+          params: { KC: ((kubeconfig)) }
+          run:
+            path: bash
+            args:
+              - -ec
+              - |
+                helm upgrade --install prod chart-image/*.tgz --kubeconfig <(echo "${KC}")
