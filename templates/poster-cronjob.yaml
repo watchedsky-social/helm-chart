@@ -48,7 +48,7 @@ spec:
               env: *env
               resources: *resources
               volumeMounts: *vm
-              restartPolicy: OnFailure
+          restartPolicy: OnFailure
           volumes:
             - name: secrets-env
               secret:

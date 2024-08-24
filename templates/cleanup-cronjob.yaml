@@ -38,7 +38,7 @@ spec:
                 - name: secrets-env
                   mountPath: /secrets
                   readOnly: true
-              restartPolicy: OnFailure
+          restartPolicy: OnFailure
           volumes:
             - name: secrets-env
               secret:

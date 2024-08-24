@@ -78,8 +78,8 @@ ingress:
           port: 8888
         - path: /xrpc
           pathType: Prefix
-          service: xrpc
-          port: 3000
+          service: core
+          port: 8888
         - path: /
           pathType: Prefix
           service: frontend

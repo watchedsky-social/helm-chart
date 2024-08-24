@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "watchedsky.fullname" . }}
+  name: {{ include "watchedsky.fullname" . }}-frontend
   labels:
     {{- include "watchedsky.frontendLabels" . | nindent 4 }}
 spec:
