@@ -27,6 +27,10 @@ resources:
     source:
       repo_url: oci://registry.lab.verysmart.house/watchedsky
       chart: application
+      authentication:
+        basic_auth:
+          username: ((harbor-user))
+          password: ((harbor-password))
   - name: helm-task-image
     type: registry-image
     public: true
