@@ -167,7 +167,7 @@ jobs:
                   repository: frontend-source
                   tag: metadata/tag
                   annotate: frontend-source/latest-release
-      - set_pipeline: deploy-chart
-        file: chart-source/ci/deploy-pipeline.yaml
-        var_files:
-          - chart-source/Chart.yaml
+          - set_pipeline: deploy-chart
+            file: chart-source/ci/deploy-pipeline.yaml
+            var_files:
+              - chart-source/Chart.yaml
