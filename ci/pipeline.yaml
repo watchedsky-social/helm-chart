@@ -21,11 +21,6 @@ resources:
       uri: git@github.com:watchedsky-social/core.git
       private_key: ((core-deploy-private-key))
       branch: main
-      git_config:
-        - name: user.name
-          value: Concourse CI
-        - name: user.email
-          value: ci@watchedsky.social
   - name: frontend-source
     type: git
     public: true
@@ -34,11 +29,6 @@ resources:
       uri: git@github.com:watchedsky-social/frontend.git
       private_key: ((frontend-deploy-private-key))
       branch: main
-      git_config:
-        - name: user.name
-          value: Concourse CI
-        - name: user.email
-          value: ci@watchedsky.social
   - name: chart-image
     type: helm-charts
     public: true
@@ -125,6 +115,9 @@ jobs:
               - -ec
               - |
                 helm package ./chart-source --destination ./packaged-charts
+      - put: chart-image
+        params:
+          location: packaged-charts
   - name: trigger-image-builds
     serial: true
     public: true
@@ -174,6 +167,3 @@ jobs:
                   repository: frontend-source
                   tag: metadata/tag
                   annotate: frontend-source/latest-release
-      - put: chart-image
-        params:
-          location: packaged-charts
