@@ -22,8 +22,10 @@ resources:
       private_key: ((core-deploy-private-key))
       branch: main
       git_config:
-        user.name: Concourse CI
-        user.email: ci@watchedsky.social
+        - name: user.name
+          value: Concourse CI
+        - name: user.email
+          value: ci@watchedsky.social
   - name: frontend-source
     type: git
     public: true
@@ -33,8 +35,10 @@ resources:
       private_key: ((frontend-deploy-private-key))
       branch: main
       git_config:
-        user.name: Concourse CI
-        user.email: ci@watchedsky.social
+        - name: user.name
+          value: Concourse CI
+        - name: user.email
+          value: ci@watchedsky.social
   - name: chart-image
     type: helm-charts
     public: true
