@@ -121,9 +121,6 @@ jobs:
               - -ec
               - |
                 helm package ./chart-source --destination ./packaged-charts
-      - put: chart-image
-        params:
-          location: packaged-charts
   - name: trigger-image-builds
     serial: true
     public: true
@@ -173,3 +170,6 @@ jobs:
                   repository: frontend-source
                   tag: metadata/tag
                   annotate: frontend-source/latest-release
+      - put: chart-image
+        params:
+          location: packaged-charts
