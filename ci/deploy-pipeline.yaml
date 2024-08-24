@@ -66,4 +66,7 @@ jobs:
             args:
               - -ec
               - |
-                helm upgrade --install prod chart-image/*.tgz --kubeconfig <(echo "${KC}")
+                kc=$(mktemp)
+                echo "${KC}" > ${kc}
+                chmod 400 ${kc}
+                helm upgrade --install prod chart-image/*.tgz --kubeconfig $kc
