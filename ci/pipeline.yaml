@@ -1,0 +1,168 @@
+resource_types:
+  - name: helm-charts
+    type: registry-image
+    source:
+      repository: registry.lab.verysmart.house/images/helm-charts-resource
+      tag: "1"
+
+resources:
+  - name: chart-source
+    type: git
+    public: true
+    icon: git
+    source:
+      uri: git@github.com:watchedsky-social/helm-chart.git
+      private_key: ((helm-chart-deploy-private-key))
+  - name: backend-source
+    type: git
+    public: true
+    icon: git
+    source:
+      uri: git@github.com:watchedsky-social/core.git
+      private_key: ((core-deploy-private-key))
+  - name: frontend-source
+    type: git
+    public: true
+    icon: git
+    source:
+      uri: git@github.com:watchedsky-social/frontend.git
+      private_key: ((frontend-deploy-private-key))
+  - name: chart-image
+    type: helm-charts
+    public: true
+    icon: kubernetes
+    source:
+      repo_url: oci://registry.lab.verysmart.house/watchedsky
+      chart: application
+      authentication:
+        basic_auth:
+          username: ((harbor-user))
+          password: ((harbor-password))
+  - name: helm-task-image
+    type: registry-image
+    public: true
+    icon: docker
+    check_every: 168h
+    source:
+      repository: registry.lab.verysmart.house/images/helm-tasks
+
+jobs:
+  - name: lint
+    serial: true
+    public: true
+    plan:
+      - in_parallel:
+          - get: chart-source
+            trigger: true
+          - get: chart-image
+            params:
+              untar: true
+          - get: helm-task-image
+            params:
+              format: rootfs
+      - in_parallel:
+          - task: lint-chart
+            image: helm-task-image
+            config:
+              platform: linux
+              inputs: [{name: chart-source, path: .}]
+              run: {path: helm, args: [lint]}
+          - task: verify-version
+            image: helm-task-image
+            config:
+              platform: linux
+              inputs:
+                - name: chart-source
+                - name: chart-image
+              run:
+                path: bash
+                args:
+                  - -ec
+                  - |
+                    oldVersion=$(yq '.version' chart-image/Chart.yaml)
+                    newVersion=$(yq '.version' chart-image/Chart.yaml)
+
+                    if ! semver-cli greater ${newVersion} ${oldVersion} ; then
+                      echo "You must increase the version in Chart.yaml!" >&2
+                      exit 1
+                    fi
+  - name: package
+    serial: true
+    public: true
+    plan:
+      - in_parallel:
+          - get: chart-source
+            trigger: true
+            passed: [lint]
+          - get: helm-task-image
+            passed: [lint]
+            params:
+              format: rootfs
+      - task: package
+        image: helm-task-image
+        config:
+          platform: linux
+          inputs:
+            - name: chart-source
+          outputs:
+            - name: packaged-charts
+          run:
+            path: bash
+            args:
+              - -ec
+              - |
+                helm package ./chart-source --destination ./packaged-charts
+      - put: chart-image
+        params:
+          location: packaged-charts
+  - name: trigger-image-builds
+    serial: true
+    public: true
+    plan:
+      - in_parallel:
+          - get: chart-source
+            trigger: true
+            passed: [package]
+          - get: helm-task-image
+            passed: [package]
+            params:
+              format: rootfs
+          - get: backend-source
+          - get: frontend-source
+      - load_var: version
+        file: chart-source/Chart.yaml
+        reveal: true
+        format: yaml
+      - in_parallel:
+          - do:
+              - task: tag-core
+                image: helm-task-image
+                file: chart-source/ci/task.yaml
+                params:
+                  VERSION: ((.:version.appVersion))
+                input_mapping:
+                  source: backend-source
+                output_mapping:
+                  source: backend-source
+              - put: backend-source
+                params:
+                  repository: backend-source
+                  tag: metadata/tag
+                  annotate: metadata/tag-message
+                  only_tag: true
+          - do:
+              - task: tag-frontend
+                image: helm-task-image
+                file: chart-source/ci/task.yaml
+                params:
+                  VERSION: ((.:version.appVersion))
+                input_mapping:
+                  source: frontend-source
+                output_mapping:
+                  source: frontend-source
+              - put: frontend-source
+                params:
+                  repository: frontend-source
+                  tag: metadata/tag
+                  annotate: metadata/tag-message
+                  only_tag: true

@@ -1,0 +1,58 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "watchedsky.fullname" . }}-poster
+  labels:
+    {{- include "watchedsky.labels" . | nindent 4 }}
+spec:
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 0
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    metadata:
+      name: {{ include "watchedsky.fullname" . }}-poster
+      labels:
+        {{- include "watchedsky.labels" . | nindent 8 }}
+    spec:
+      template:
+        metadata:
+          labels:
+            {{- include "watchedsky.labels" . | nindent 12 }}
+        spec:
+          initContainers:
+            - name: {{ include "watchedsky.fullname" . }}-init
+              image: "{{ .Values.core.image.repository }}:{{ .Values.core.image.tag | default .Chart.AppVersion }}"
+              imagePullPolicy: Always
+              command: ["/app/hydrate-state"]
+              env: &env
+                - name: WATCHEDSKY_ENV_FILE
+                  value: /secrets/.env
+              resources: &resources
+                requests:
+                  cpu: 200m
+                  memory: 128Mi
+                limits:
+                  cpu: 400m
+                  memory: 256Mi
+              volumeMounts: &vm
+                - name: secrets-env
+                  mountPath: /secrets
+                  readOnly: true
+                - name: shared-storage
+                  mountPath: /app/hydration
+          containers:
+            - name: {{ include "watchedsky.fullname" . }}-poster
+              image: "{{ .Values.core.image.repository }}:{{ .Values.core.image.tag | default .Chart.AppVersion }}"
+              imagePullPolicy: Always
+              command: ["/app/post-alerts"]
+              env: *env
+              resources: *resources
+              volumeMounts: *vm
+              restartPolicy: OnFailure
+          volumes:
+            - name: secrets-env
+              secret:
+                secretName: {{ include "watchedsky.fullname" . }}
+            - name: shared-storage
+              emptyDir: {}
+  schedule: "3,13,23,33,43,53 * * * *"

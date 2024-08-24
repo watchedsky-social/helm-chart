@@ -50,6 +50,57 @@ app.kubernetes.io/name: {{ include "watchedsky.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
+{{- define "watchedsky.coreLabels" -}}
+helm.sh/chart: {{ include "watchedsky.chart" . }}
+{{ include "watchedsky.coreSelectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}
+
+{{/*
+Selector labels
+*/}}
+{{- define "watchedsky.coreSelectorLabels" -}}
+app.kubernetes.io/name: {{ include "watchedsky.name" . }}-core
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+{{- define "watchedsky.frontendLabels" -}}
+helm.sh/chart: {{ include "watchedsky.chart" . }}
+{{ include "watchedsky.frontendSelectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}
+
+{{/*
+Selector labels
+*/}}
+{{- define "watchedsky.frontendSelectorLabels" -}}
+app.kubernetes.io/name: {{ include "watchedsky.name" . }}-frontend
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+{{- define "watchedsky.xrpcLabels" -}}
+helm.sh/chart: {{ include "watchedsky.chart" . }}
+{{ include "watchedsky.xrpcSelectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}
+
+{{/*
+Selector labels
+*/}}
+{{- define "watchedsky.xrpcSelectorLabels" -}}
+app.kubernetes.io/name: {{ include "watchedsky.name" . }}-xrpc
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
 {{/*
 Create the name of the service account to use
 */}}

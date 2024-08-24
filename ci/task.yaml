@@ -1,0 +1,19 @@
+platform: linux
+
+inputs:
+  - name: source
+
+outputs:
+  - name: source
+  - name: metadata
+
+params:
+  VERSION: ""
+
+run:
+  path: bash
+  args:
+    - -ec
+    - |
+      echo -n ${VERSION} > metadata/tag
+      echo "Publishing version ${VERSION} of the chart" > metadata/tag-message

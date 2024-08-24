@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "watchedsky.fullname" . }}
+  labels:
+    {{- include "watchedsky.coreLabels" . | nindent 4 }}
+spec:
+  type: {{ .Values.core.service.type }}
+  ports:
+    - port: {{ .Values.core.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "watchedsky.coreSelectorLabels" . | nindent 4 }}

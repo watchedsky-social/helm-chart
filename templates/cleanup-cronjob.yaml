@@ -1,0 +1,46 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "watchedsky.fullname" . }}-cleanup
+  labels:
+    {{- include "watchedsky.labels" . | nindent 4 }}
+spec:
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 0
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    metadata:
+      name: {{ include "watchedsky.fullname" . }}-cleanup
+      labels:
+        {{- include "watchedsky.labels" . | nindent 8 }}
+    spec:
+      template:
+        metadata:
+          labels:
+            {{- include "watchedsky.labels" . | nindent 12 }}
+        spec:
+          containers:
+            - name: {{ include "watchedsky.fullname" . }}-cleanup
+              image: "{{ .Values.core.image.repository }}:{{ .Values.core.image.tag | default .Chart.AppVersion }}"
+              imagePullPolicy: Always
+              command: ["/app/alert-vacuum"]
+              env:
+                - name: WATCHEDSKY_ENV_FILE
+                  value: /secrets/.env
+              resources:
+                requests:
+                  cpu: 200m
+                  memory: 128Mi
+                limits:
+                  cpu: 400m
+                  memory: 256Mi
+              volumeMounts:
+                - name: secrets-env
+                  mountPath: /secrets
+                  readOnly: true
+              restartPolicy: OnFailure
+          volumes:
+            - name: secrets-env
+              secret:
+                secretName: {{ include "watchedsky.fullname" . }}
+  schedule: "2,12,22,32,42,52 * * * *"

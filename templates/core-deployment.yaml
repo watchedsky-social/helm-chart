@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "watchedsky.fullname" . }}-core
+  labels:
+    {{- include "watchedsky.coreLabels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "watchedsky.coreSelectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "watchedsky.coreLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "watchedsky.serviceAccountName" . }}
+      containers:
+        - name: {{ .Chart.Name }}-core-server
+          image: "{{ .Values.core.image.repository }}:{{ .Values.core.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: Always
+          command: ["/app/api-server"]
+          env:
+            - name: WATCHEDSKY_ENV_FILE
+              value: /secrets/.env
+          ports:
+            - name: http
+              containerPort: {{ .Values.core.service.port }}
+              protocol: TCP
+          livenessProbe:
+            {{- toYaml .Values.core.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.core.readinessProbe | nindent 12 }}
+          resources:
+            {{- toYaml .Values.core.resources | nindent 12 }}
+          volumeMounts:
+            - name: secrets-env
+              mountPath: /secrets
+              readOnly: true
+      volumes:
+        - name: secrets-env
+          secret:
+            secretName: {{ include "watchedsky.fullname" . }}
+

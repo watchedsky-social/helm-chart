@@ -1,0 +1,6 @@
+UI is available at https://watchedsky.social
+
+Alerts are checked every 10 minutes at :00, :10, :20, :30, :40, and :50
+Alerts are cleaned up every 10 minutes at :02, :12, :22, :32, :42, and :52
+Alerts are posted to Bluesky every 10 minutes at :03, :13, :23, :33, :43,
+  and :53
