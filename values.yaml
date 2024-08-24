@@ -83,7 +83,7 @@ ingress:
         - path: /
           pathType: Prefix
           service: frontend
-          port: 8080
+          port: 3000
   tls:
     - hosts:
       - watchedsky.social
