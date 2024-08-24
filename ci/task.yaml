@@ -19,5 +19,7 @@ run:
       echo "Publishing version ${VERSION} of the chart" > source/latest-release
 
       cd source
+      git config user.name 'Concourse CI'
+      git config user.email 'ci@watchedsky.social'
       git add -A
       git commit -m 'Updated latest-release file'
