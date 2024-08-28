@@ -22,4 +22,4 @@ run:
       git config user.name 'Concourse CI'
       git config user.email 'ci@watchedsky.social'
       git add -A
-      git commit -m 'Updated latest-release file'
+      git commit -m 'Updated latest-release file' || true
