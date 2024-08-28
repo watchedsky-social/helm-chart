@@ -84,9 +84,9 @@ app.kubernetes.io/name: {{ include "watchedsky.name" . }}-frontend
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
-{{- define "watchedsky.xrpcLabels" -}}
+{{- define "watchedsky.feedLabels" -}}
 helm.sh/chart: {{ include "watchedsky.chart" . }}
-{{ include "watchedsky.xrpcSelectorLabels" . }}
+{{ include "watchedsky.feedSelectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -96,8 +96,8 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "watchedsky.xrpcSelectorLabels" -}}
-app.kubernetes.io/name: {{ include "watchedsky.name" . }}-xrpc
+{{- define "watchedsky.feedSelectorLabels" -}}
+app.kubernetes.io/name: {{ include "watchedsky.name" . }}-feed
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 

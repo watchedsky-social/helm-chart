@@ -62,6 +62,32 @@ frontend:
       path: /
       port: http
 
+feed:
+  image:
+    repository: registry.lab.verysmart.house/watchedsky/feed
+    tag: ""
+
+  service:
+    type: ClusterIP
+    port: 3000
+
+  resources:
+    requests:
+      cpu: 250m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+  livenessProbe:
+    httpGet:
+      path: /livez
+      port: http
+  readinessProbe:
+    httpGet:
+      path: /readyz
+      port: http
+
 ingress:
   enabled: true
   className: contour-external
@@ -76,17 +102,20 @@ ingress:
           pathType: Prefix
           service: core
           port: 8888
-        - path: /xrpc
-          pathType: Prefix
-          service: core
-          port: 8888
         - path: /
           pathType: Prefix
           service: frontend
           port: 3000
+    - host: feed.watchedsky.social
+      paths:
+        - path: /xrpc
+          pathType: Prefix
+          service: feed
+          port: 3000
   tls:
     - hosts:
-      - watchedsky.social
+        - watchedsky.social
+        - feed.watchedsky.social
       secretName: watchedsky-social-tls
 
 autoscaling:

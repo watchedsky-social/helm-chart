@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "watchedsky.fullname" . }}-feed
+  labels:
+    {{- include "watchedsky.feedLabels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "watchedsky.feedSelectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "watchedsky.feedLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "watchedsky.serviceAccountName" . }}
+      containers:
+        - name: {{ .Chart.Name }}-feed-server
+          image: "{{ .Values.feed.image.repository }}:{{ .Values.feed.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: Always
+          command: ["/app/api-server"]
+          ports:
+            - name: http
+              containerPort: {{ .Values.feed.service.port }}
+              protocol: TCP
+          livenessProbe:
+            {{- toYaml .Values.feed.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.feed.readinessProbe | nindent 12 }}
+          resources:
+            {{- toYaml .Values.feed.resources | nindent 12 }}
+          volumeMounts:
+            - name: secrets-env
+              mountPath: /app/.env
+              subPath: .env
+              readOnly: true
+      volumes:
+        - name: secrets-env
+          secret:
+            secretName: {{ include "watchedsky.fullname" . }}-feed
+

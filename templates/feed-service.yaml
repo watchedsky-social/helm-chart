@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "watchedsky.fullname" . }}-feed
+  labels:
+    {{- include "watchedsky.feedLabels" . | nindent 4 }}
+spec:
+  type: {{ .Values.feed.service.type }}
+  ports:
+    - port: {{ .Values.feed.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "watchedsky.feedSelectorLabels" . | nindent 4 }}
