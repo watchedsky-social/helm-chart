@@ -108,7 +108,7 @@ ingress:
           port: 3000
     - host: feed.watchedsky.social
       paths:
-        - path: /xrpc
+        - path: /
           pathType: Prefix
           service: feed
           port: 3000
