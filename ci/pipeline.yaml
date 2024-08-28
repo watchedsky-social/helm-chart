@@ -89,10 +89,26 @@ jobs:
                 args:
                   - -ec
                   - |
+                    pushd chart-source >/dev/null
+                    changedFiles=($(git diff-tree --no-commit-id --name-only HEAD -r))
+                    popd >/dev/null
+
+                    set -x
+                    checkVersion=0
+                    for file in ${changedFiles[@]}; do
+                      if [[ $file == templates/* ]]; then
+                        checkVersion=1
+                        break
+                      fi
+                    done
+
+                    if [[ $checkVersion == 0 ]]; then
+                      exit 0
+                    fi
+
                     oldVersion=$(yq '.version' chart-image/application/Chart.yaml)
                     newVersion=$(yq '.version' chart-source/Chart.yaml)
 
-                    set -x
                     if ! semver-cli greater ${newVersion} ${oldVersion} ; then
                       echo "You must increase the version in Chart.yaml!" >&2
                       exit 1
