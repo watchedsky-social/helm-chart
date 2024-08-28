@@ -21,7 +21,6 @@ spec:
         - name: {{ .Chart.Name }}-feed-server
           image: "{{ .Values.feed.image.repository }}:{{ .Values.feed.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: Always
-          command: ["/app/api-server"]
           ports:
             - name: http
               containerPort: {{ .Values.feed.service.port }}
