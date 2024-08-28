@@ -15,7 +15,7 @@ spec:
         - name: {{ .Chart.Name }}-publish-feed
           image: "{{ .Values.feed.image.repository }}:{{ .Values.feed.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: Always
-          command: ["/app/scripts/publishFeedGen.js"]
+          args: ["/app/scripts/publishFeedGen.js"]
           resources:
             {{- toYaml .Values.feed.resources | nindent 12 }}
           volumeMounts:
