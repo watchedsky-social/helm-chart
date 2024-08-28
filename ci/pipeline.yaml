@@ -96,7 +96,7 @@ jobs:
                     set -x
                     checkVersion=0
                     for file in ${changedFiles[@]}; do
-                      if [[ $file == templates/* ]]; then
+                      if [[ $file == templates/* ]] || [[ $file == "Chart.yaml" ]]; then
                         checkVersion=1
                         break
                       fi
