@@ -59,6 +59,9 @@ jobs:
           - get: frontend-image
             params:
               skip_download: true
+          - get: feed-image
+            params:
+              skip_download: true
           - get: helm-task-image
             params:
               format: rootfs
