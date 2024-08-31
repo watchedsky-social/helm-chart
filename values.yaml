@@ -129,3 +129,5 @@ secret:
   # db_password: ""
   # bsky_id: ""
   # bsky_password: ""
+
+publish: false
