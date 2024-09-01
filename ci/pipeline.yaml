@@ -207,7 +207,27 @@ jobs:
                   repository: feed-source
                   tag: metadata/tag
                   annotate: feed-source/latest-release
-          - set_pipeline: deploy-chart
-            file: chart-source/ci/deploy-pipeline.yaml
-            var_files:
-              - chart-source/Chart.yaml
+      - set_pipeline: deploy-chart
+        file: chart-source/ci/deploy-pipeline.yaml
+        var_files:
+          - chart-source/Chart.yaml
+  - name: trigger-deploy
+    serial: true
+    public: true
+    plan:
+      - get: helm-task-image
+        passed: [trigger-image-builds]
+        params:
+          format: rootfs
+      - task: trigger-deploy
+        image: helm-task-image
+        config:
+          platform: linux
+          run:
+            path: bash
+            args:
+              - -ec
+              - |
+                sleep 2 # Allow the set-pipeline from the previous job to take effect
+                curl -X POST https://ci.watchedsky.social/api/v1/teams/main/pipelines/deploy-chart/resources/webhook-trigger/check/webhook?webhook_token=((deploy-webhook-secret))
+

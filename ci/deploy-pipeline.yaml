@@ -45,6 +45,12 @@ resources:
     check_every: 168h
     source:
       repository: registry.lab.verysmart.house/images/helm-tasks
+  - name: webhook-trigger
+    type: time
+    check_every: 999999h
+    webhook_token: ((deploy-webhook-secret))
+    source:
+      interval: 1m
 
 jobs:
   - name: deploy
@@ -52,6 +58,8 @@ jobs:
     serial: true
     plan:
       - in_parallel:
+          - get: webhook-trigger
+            trigger: true
           - get: chart-image
           - get: backend-image
             params:
