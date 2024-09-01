@@ -187,10 +187,10 @@ jobs:
       - in_parallel:
           - get: chart-source
             trigger: true
-            passed: [trigger-image-builds]
+            passed: [tag-images]
           - get: helm-task-image
             trigger: true
-            passed: [trigger-image-builds]
+            passed: [tag-images]
             params:
               format: rootfs
       - task: trigger-deploy
