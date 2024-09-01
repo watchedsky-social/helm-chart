@@ -175,8 +175,7 @@ jobs:
               - put: backend-source
                 params:
                   repository: backend-source
-                  tag: metadata/tag
-                  annotate: backend-source/latest-release
+                  only_tag: true
           - do:
               - task: tag-frontend
                 image: helm-task-image
@@ -190,8 +189,7 @@ jobs:
               - put: frontend-source
                 params:
                   repository: frontend-source
-                  tag: metadata/tag
-                  annotate: frontend-source/latest-release
+                  only_tag: true
           - do:
               - task: tag-feed
                 image: helm-task-image
@@ -205,8 +203,7 @@ jobs:
               - put: feed-source
                 params:
                   repository: feed-source
-                  tag: metadata/tag
-                  annotate: feed-source/latest-release
+                  only_tag: true
               - set_pipeline: deploy-chart
                 file: chart-source/ci/deploy-pipeline.yaml
                 var_files:

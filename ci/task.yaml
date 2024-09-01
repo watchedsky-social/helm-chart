@@ -5,7 +5,6 @@ inputs:
 
 outputs:
   - name: source
-  - name: metadata
 
 params:
   VERSION: ""
@@ -15,11 +14,7 @@ run:
   args:
     - -ec
     - |
-      echo -n ${VERSION} > metadata/tag
-      echo "Publishing version ${VERSION} of the chart" > source/latest-release
-
       cd source
       git config user.name 'Concourse CI'
       git config user.email 'ci@watchedsky.social'
-      git add -A
-      git commit -m 'Updated latest-release file' || true
+      git tag -a ${VERSION} -m "Create ${VERSION} tag for chart image" || true
