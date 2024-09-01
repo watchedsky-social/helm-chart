@@ -19,18 +19,24 @@ resources:
     icon: docker
     source:
       repository: registry.lab.verysmart.house/watchedsky/core
+      username: ((harbor-user))
+      password: ((harbor-password))
   - name: frontend-image
     type: registry-image
     public: true
     icon: docker
     source:
       repository: registry.lab.verysmart.house/watchedsky/frontend
+      username: ((harbor-user))
+      password: ((harbor-password))
   - name: feed-image
     type: registry-image
     public: true
     icon: docker
     source:
       repository: registry.lab.verysmart.house/watchedsky/feed
+      username: ((harbor-user))
+      password: ((harbor-password))
   - name: chart-image
     type: helm-charts
     public: true
