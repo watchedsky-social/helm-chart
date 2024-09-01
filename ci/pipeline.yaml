@@ -215,10 +215,14 @@ jobs:
     serial: true
     public: true
     plan:
-      - get: helm-task-image
-        passed: [trigger-image-builds]
-        params:
-          format: rootfs
+      - in_parallel:
+          - get: chart-source
+            trigger: true
+            passed: [trigger-image-builds]
+          - get: helm-task-image
+            passed: [trigger-image-builds]
+            params:
+              format: rootfs
       - task: trigger-deploy
         image: helm-task-image
         config:
