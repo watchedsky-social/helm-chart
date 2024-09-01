@@ -13,30 +13,24 @@ resources:
     source:
       uri: git@github.com:watchedsky-social/helm-chart.git
       private_key: ((helm-chart-deploy-private-key))
-  - name: backend-source
-    type: git
+  - name: backend-image
+    type: registry-image
     public: true
-    icon: git
+    icon: docker
     source:
-      uri: git@github.com:watchedsky-social/core.git
-      private_key: ((core-deploy-private-key))
-      branch: main
-  - name: frontend-source
-    type: git
+      repository: registry.lab.verysmart.house/watchedsky/core
+  - name: frontend-image
+    type: registry-image
     public: true
-    icon: git
+    icon: docker
     source:
-      uri: git@github.com:watchedsky-social/frontend.git
-      private_key: ((frontend-deploy-private-key))
-      branch: main
-  - name: feed-source
-    type: git
+      repository: registry.lab.verysmart.house/watchedsky/frontend
+  - name: feed-image
+    type: registry-image
     public: true
-    icon: git
+    icon: docker
     source:
-      uri: git@github.com:watchedsky-social/feed.git
-      private_key: ((feed-deploy-private-key))
-      branch: main
+      repository: registry.lab.verysmart.house/watchedsky/feed
   - name: chart-image
     type: helm-charts
     public: true
@@ -122,6 +116,7 @@ jobs:
             trigger: true
             passed: [lint]
           - get: helm-task-image
+            trigger: true
             passed: [lint]
             params:
               format: rootfs
@@ -142,7 +137,7 @@ jobs:
       - put: chart-image
         params:
           location: packaged-charts
-  - name: trigger-image-builds
+  - name: tag-images
     serial: true
     public: true
     plan:
@@ -151,63 +146,40 @@ jobs:
             trigger: true
             passed: [package]
           - get: helm-task-image
+            trigger: true
             passed: [package]
             params:
               format: rootfs
-          - get: backend-source
-          - get: frontend-source
-          - get: feed-source
+          - get: backend-image
+            params:
+              format: oci
+          - get: frontend-image
+            params:
+              format: oci
+          - get: feed-image
+            params:
+              format: oci
       - load_var: version
         file: chart-source/Chart.yaml
         reveal: true
         format: yaml
       - in_parallel:
-          - do:
-              - task: tag-core
-                image: helm-task-image
-                file: chart-source/ci/task.yaml
-                params:
-                  VERSION: ((.:version.appVersion))
-                input_mapping:
-                  source: backend-source
-                output_mapping:
-                  source: backend-source
-              - put: backend-source
-                params:
-                  repository: backend-source
-                  only_tag: true
-          - do:
-              - task: tag-frontend
-                image: helm-task-image
-                file: chart-source/ci/task.yaml
-                params:
-                  VERSION: ((.:version.appVersion))
-                input_mapping:
-                  source: frontend-source
-                output_mapping:
-                  source: frontend-source
-              - put: frontend-source
-                params:
-                  repository: frontend-source
-                  only_tag: true
-          - do:
-              - task: tag-feed
-                image: helm-task-image
-                file: chart-source/ci/task.yaml
-                params:
-                  VERSION: ((.:version.appVersion))
-                input_mapping:
-                  source: feed-source
-                output_mapping:
-                  source: feed-source
-              - put: feed-source
-                params:
-                  repository: feed-source
-                  only_tag: true
-              - set_pipeline: deploy-chart
-                file: chart-source/ci/deploy-pipeline.yaml
-                var_files:
-                  - chart-source/Chart.yaml
+          - put: backend-image
+            params:
+              image: backend-image/image.tar
+              version: ((.:version.appVersion))
+          - put: frontend-image
+            params:
+              image: frontend-image/image.tar
+              version: ((.:version.appVersion))
+          - put: feed-image
+            params:
+              image: feed-image/image.tar
+              version: ((.:version.appVersion))
+          - set_pipeline: deploy-chart
+            file: chart-source/ci/deploy-pipeline.yaml
+            var_files:
+              - chart-source/Chart.yaml
   - name: trigger-deploy
     serial: true
     public: true
@@ -217,6 +189,7 @@ jobs:
             trigger: true
             passed: [trigger-image-builds]
           - get: helm-task-image
+            trigger: true
             passed: [trigger-image-builds]
             params:
               format: rootfs
