@@ -13,30 +13,27 @@ resources:
     source:
       uri: git@github.com:watchedsky-social/helm-chart.git
       private_key: ((helm-chart-deploy-private-key))
-  - name: backend-image
-    type: registry-image
+  - name: backend-source
+    type: git
     public: true
-    icon: docker
+    icon: git
     source:
-      repository: registry.lab.verysmart.house/watchedsky/core
-      username: ((harbor-user))
-      password: ((harbor-password))
-  - name: frontend-image
-    type: registry-image
+      uri: git@github.com:watchedsky-social/core.git
+      private_key: ((core-deploy-private-key))
+  - name: frontend-source
+    type: git
     public: true
-    icon: docker
+    icon: git
     source:
-      repository: registry.lab.verysmart.house/watchedsky/frontend
-      username: ((harbor-user))
-      password: ((harbor-password))
-  - name: feed-image
-    type: registry-image
+      uri: git@github.com:watchedsky-social/frontend.git
+      private_key: ((frontend-deploy-private-key))
+  - name: feed-source
+    type: git
     public: true
-    icon: docker
+    icon: git
     source:
-      repository: registry.lab.verysmart.house/watchedsky/feed
-      username: ((harbor-user))
-      password: ((harbor-password))
+      uri: git@github.com:watchedsky-social/feed.git
+      private_key: ((feed-deploy-private-key))
   - name: chart-image
     type: helm-charts
     public: true
@@ -156,15 +153,9 @@ jobs:
             passed: [package]
             params:
               format: rootfs
-          - get: backend-image
-            params:
-              format: oci
-          - get: frontend-image
-            params:
-              format: oci
-          - get: feed-image
-            params:
-              format: oci
+          - get: backend-source
+          - get: frontend-source
+          - get: feed-source
       - load_var: version
         file: chart-source/Chart.yaml
         reveal: true
