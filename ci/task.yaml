@@ -17,4 +17,7 @@ run:
       cd source
       git config user.name 'Concourse CI'
       git config user.email 'ci@watchedsky.social'
+      echo "${VERSION}" > latest-release
+      git add latest-release
+      git commit -m "Create build for version ${VERSION}" || exit 0
       git tag -a ${VERSION} -m "Create ${VERSION} tag for chart image" || true
