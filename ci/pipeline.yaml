@@ -170,18 +170,48 @@ jobs:
         reveal: true
         format: yaml
       - in_parallel:
-          - put: backend-image
-            params:
-              image: backend-image/image.tar
-              version: ((.:version.appVersion))
-          - put: frontend-image
-            params:
-              image: frontend-image/image.tar
-              version: ((.:version.appVersion))
-          - put: feed-image
-            params:
-              image: feed-image/image.tar
-              version: ((.:version.appVersion))
+          - do:
+              - task: tag-core
+                image: helm-task-image
+                file: chart-source/ci/task.yaml
+                params:
+                  VERSION: ((.:version.appVersion))
+                input_mapping:
+                  source: backend-source
+                output_mapping:
+                  source: backend-source
+              - put: backend-source
+                params:
+                  repository: backend-source
+                  only_tag: true
+          - do:
+              - task: tag-frontend
+                image: helm-task-image
+                file: chart-source/ci/task.yaml
+                params:
+                  VERSION: ((.:version.appVersion))
+                input_mapping:
+                  source: frontend-source
+                output_mapping:
+                  source: frontend-source
+              - put: frontend-source
+                params:
+                  repository: frontend-source
+                  only_tag: true
+          - do:
+              - task: tag-feed
+                image: helm-task-image
+                file: chart-source/ci/task.yaml
+                params:
+                  VERSION: ((.:version.appVersion))
+                input_mapping:
+                  source: feed-source
+                output_mapping:
+                  source: feed-source
+              - put: feed-source
+                params:
+                  repository: feed-source
+                  only_tag: true
           - set_pipeline: deploy-chart
             file: chart-source/ci/deploy-pipeline.yaml
             var_files:
