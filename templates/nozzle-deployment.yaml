@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "watchedsky.fullname" . }}-nozzle
+  labels:
+    {{- include "watchedsky.nozzleLabels" . | nindent 4 }}
+spec:
+  # THIS MUST NOT BE MORE THAN ONE, AS THE BLUESKY FIREHOSE DOES NOT MULTIPLEX
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "watchedsky.nozzleSelectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "watchedsky.nozzleLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "watchedsky.serviceAccountName" . }}
+      containers:
+        - name: {{ .Chart.Name }}-nozzle-server
+          image: "{{ .Values.core.image.repository }}:{{ .Values.core.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: Always
+          command: ["/app/nozzle"]
+          env:
+            - name: WATCHEDSKY_ENV_FILE
+              value: /secrets/.env
+          ports:
+            - name: http
+              containerPort: 23456
+              protocol: TCP
+          livenessProbe:
+            {{- toYaml .Values.nozzle.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.nozzle.readinessProbe | nindent 12 }}
+          resources:
+            {{- toYaml .Values.nozzle.resources | nindent 12 }}
+          volumeMounts:
+            - name: secrets-env
+              mountPath: /secrets
+              readOnly: true
+      volumes:
+        - name: secrets-env
+          secret:
+            secretName: {{ include "watchedsky.fullname" . }}
+

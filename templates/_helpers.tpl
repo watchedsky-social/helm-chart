@@ -101,6 +101,23 @@ app.kubernetes.io/name: {{ include "watchedsky.name" . }}-feed
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
+{{- define "watchedsky.nozzleLabels" -}}
+helm.sh/chart: {{ include "watchedsky.chart" . }}
+{{ include "watchedsky.nozzleSelectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}
+
+{{/*
+Selector labels
+*/}}
+{{- define "watchedsky.nozzleSelectorLabels" -}}
+app.kubernetes.io/name: {{ include "watchedsky.name" . }}-nozzle
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
 {{/*
 Create the name of the service account to use
 */}}

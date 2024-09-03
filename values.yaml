@@ -88,6 +88,28 @@ feed:
       path: /readyz
       port: http
 
+nozzle:
+  image:
+    repository: registry.lab.verysmart.house/watchedsky/core
+    tag: ""
+
+  resources:
+    requests:
+      cpu: 500m
+      memory: 512Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
+
+  livenessProbe:
+    httpGet:
+      path: /livez
+      port: http
+  readinessProbe:
+    httpGet:
+      path: /readyz
+      port: http
+
 ingress:
   enabled: true
   className: contour-external
