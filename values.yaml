@@ -64,9 +64,9 @@ frontend:
 
 feed:
   image:
-    repository: registry.lab.verysmart.house/watchedsky/feed
+    repository: registry.lab.verysmart.house/watchedsky/core
     tag: ""
-
+  publisherDID: did:plc:hvjfuy2w6zqu6abmpkwcpulc
   service:
     type: ClusterIP
     port: 3000

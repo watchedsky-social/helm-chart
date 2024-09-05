@@ -20,6 +20,10 @@ spec:
       containers:
         - name: {{ .Chart.Name }}-feed-server
           image: "{{ .Values.feed.image.repository }}:{{ .Values.feed.image.tag | default .Chart.AppVersion }}"
+          command: ["/app/feed-server"]
+          env:
+            - name: WATCHEDSKY_FEED_PUBLISHER_DID
+              value: {{ .Values.feed.publisherDID }}
           imagePullPolicy: Always
           ports:
             - name: http
