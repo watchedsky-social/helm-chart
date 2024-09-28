@@ -29,14 +29,6 @@ resources:
       uri: git@github.com:watchedsky-social/frontend.git
       private_key: ((frontend-deploy-private-key))
       branch: main
-  - name: feed-source
-    type: git
-    public: true
-    icon: git
-    source:
-      uri: git@github.com:watchedsky-social/feed.git
-      private_key: ((feed-deploy-private-key))
-      branch: main
   - name: chart-image
     type: helm-charts
     public: true
@@ -158,7 +150,6 @@ jobs:
               format: rootfs
           - get: backend-source
           - get: frontend-source
-          - get: feed-source
       - load_var: version
         file: chart-source/Chart.yaml
         reveal: true
@@ -190,19 +181,6 @@ jobs:
               - put: frontend-source
                 params:
                   repository: frontend-source
-          - do:
-              - task: tag-feed
-                image: helm-task-image
-                file: chart-source/ci/task.yaml
-                params:
-                  VERSION: ((.:version.appVersion))
-                input_mapping:
-                  source: feed-source
-                output_mapping:
-                  source: feed-source
-              - put: feed-source
-                params:
-                  repository: feed-source
           - set_pipeline: deploy-chart
             file: chart-source/ci/deploy-pipeline.yaml
             var_files:

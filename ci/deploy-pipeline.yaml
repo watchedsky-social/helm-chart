@@ -20,13 +20,6 @@ resources:
     source:
       repository: registry.lab.verysmart.house/watchedsky/frontend
       tag: ((appVersion))
-  - name: feed-image
-    type: registry-image
-    public: true
-    icon: docker
-    source:
-      repository: registry.lab.verysmart.house/watchedsky/feed
-      tag: ((appVersion))
   - name: chart-image
     type: helm-charts
     public: true
@@ -65,9 +58,6 @@ jobs:
             params:
               skip_download: true
           - get: frontend-image
-            params:
-              skip_download: true
-          - get: feed-image
             params:
               skip_download: true
           - get: helm-task-image
